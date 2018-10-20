@@ -12,7 +12,7 @@
         client_cert: ""
         client_key: "" 
         app_id: "Ansible"
-        query: "safe=D-LIN-ROOT-SSHKEYS;folder=root;object=ANSIBLE-RHEL01-KEY"
+        query: "Safe=D-LIN-ROOT-SSHKEYS;Folder=Root;Object=ANSIBLE-RHEL01-KEY"
       register: cyberark_response
       delegate_to: localhost
       no_log: yes
