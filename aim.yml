@@ -2,7 +2,7 @@
 - hosts: localhost
 
   roles:
-    - role: cyberark.modules
+    - cyberark.modules
 
   tasks:
     - name: Retrieve SSH Private Key for Login from CyberArk
