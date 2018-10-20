@@ -22,7 +22,6 @@
         cyberark_secret: "{{ cyberark_response.result.Content }}"
       no_log: yes
 
----
 - hosts: all
   connection: local 
   gather_facts: no
