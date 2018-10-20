@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+
+  roles:
+    - role: cyberark.modules
+
+  tasks:
+    - name: Retrieve SSH Private Key for Login from CyberArk
+      cyberark_credential:
+        api_base_url: "https://pvwa.192.168.3.102.xip.io"
+        validate_certs: no
+        client_cert: ""
+        client_key: "" 
+        app_id: "Ansible"
+        query: "safe=D-LIN-ROOT-SSHKEYS;folder=root;object=ANSIBLE-RHEL01-KEY"
+      register: cyberark_response
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Set SSH Private Key to Fact Named cyberark_secret
+      set_fact:
+        cyberark_secret: "{{ cyberark_response.result.Content }}"
+      no_log: yes
+
+---
+- hosts: all
+  connection: local 
+  gather_facts: no
+  vars:
+    ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret'] }}"
+
+  tasks:
+    - name: DEBUG - List Root of Filesystem
+      shell: ls / 
