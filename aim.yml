@@ -44,7 +44,8 @@
 - hosts: all
   gather_facts: no
   vars:
-    ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret_key'] }}"
+    ansible_user: root
+    ansible_ssh_private_key: "{{ hostvars['localhost']['cyberark_secret_key'] }}"
     cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
     cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
     mysql_username: "demo"
