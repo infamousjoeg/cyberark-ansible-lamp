@@ -55,43 +55,63 @@
     - cyberark.modules
 
   tasks:
-    - name: Install Apache
+    - name: Install Apache & PHP
       yum:
-        name: apache2
+        name: "{{ item }}"
         state: present
+        with_items:
+          - httpd
+          - php
+          - php-mysql
 
-    - name: Install PHP module for Apache
+    - name: Install Web Role Specific Dependencies
       yum:
-        name: libapache2-mod-php5
+        name: "{{ item }}"
         state: present
+        with_items:
+          - git
+          - wget
+          - curl
+          - jq
 
     - name: Start Apache
       service:
-        name: apache2
-        state: running
+        name: httpd
+        state: started
         enabled: yes
 
-    - name: Create index.php That Pulls from MariaDB Using CyberArk Secured Secret 
+    - name: Configure SELinux to Allow httpd Connection to Remote Database
+      seboolean:
+        name: httpd_can_network_connect_db
+        state: true
+        persistent: yes
+
+    - name: Create index.php Start Page
       copy:
         dest: "/var/www/html/index.php"
         content: |
           <?php echo "Hello World!"; ?>
 
-    - name: Install MariaDB Server Package
+    - name: Install MariaDB Package
       yum:
-        name: mariadb-server
+        name: "{{ item }}"
         state: present
+        with_items:
+          - mariadb-server
+          - mysql-python
+          - python-mysqldb
+
+    - name: Configure SELinux to Start MySQL on Any Port 
+      seboolean:
+        name: mysql_connect_any
+        state: true
+        persistent: yes
 
     - name: Start MySQL Service
       service:
-        name: mysql
+        name: mariadb
         state: started
-        enabled: true
-
-    - name: Install Python MySQL Package
-      yum:
-        name: python-mysqldb
-        state: present
+        enabled: yes
 
     - name: Create a New Database
       mysql_db:
@@ -154,14 +174,9 @@
       shell:
         cat /tmp/dump.sql | mysql -u '{''{ mysql_username }''}' -p '{''{ mysql_password }''}'
 
-    - name: Install MySQL extension for PHP 
-      yum:
-        name: php5-mysql
-        state: present
-
     - name: Restart Apache 
       service:
-        name: apache2
+        name: httpd
         state: restarted
 
     - name: Install Database Connection PHP Script db.php
