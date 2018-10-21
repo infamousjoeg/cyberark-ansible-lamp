@@ -59,7 +59,7 @@
       yum:
         name: "{{ item }}"
         state: present
-        with_items:
+      with_items:
           - httpd
           - php
           - php-mysql
@@ -68,7 +68,7 @@
       yum:
         name: "{{ item }}"
         state: present
-        with_items:
+      with_items:
           - git
           - wget
           - curl
@@ -96,7 +96,7 @@
       yum:
         name: "{{ item }}"
         state: present
-        with_items:
+      with_items:
           - mariadb-server
           - mysql-python
           - python-mysqldb
