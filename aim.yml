@@ -42,7 +42,6 @@
       no_log: yes
 
 - hosts: all
-  connection: local 
   gather_facts: no
   vars:
     ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret_key'] }}"
@@ -57,15 +56,12 @@
   tasks:
     - name: Install Apache & PHP
       yum:
-        # name: "{{ item }}"
-        name: httpd
+        name: "{{ item }}"
         state: present
-      sudo: no
-      rsync_path: "sudo rsync"
-      # with_items:
-      #     - httpd
-      #     - php
-      #     - php-mysql
+      with_items:
+          - httpd
+          - php
+          - php-mysql
 
     - name: Install Web Role Specific Dependencies
       yum:
