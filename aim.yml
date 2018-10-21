@@ -112,7 +112,7 @@
         username: "{{ cyberark_rest_user }}"
         password: "{{ cyberark_rest_pass }}"
 
-    - name: Set SSH Private Key to Fact Named cyberark_secret_key
+    - name: Set CyberArk Authn Token to Fact Named cyberark_authn_token
       set_fact:
         cyberark_authn_token: "{{ cyberark_session.token }}"
       no_log: yes
