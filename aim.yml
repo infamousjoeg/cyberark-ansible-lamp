@@ -60,7 +60,8 @@
         # name: "{{ item }}"
         name: httpd
         state: present
-      become: yes
+      sudo: no
+      rsync_path: "sudo rsync"
       # with_items:
       #     - httpd
       #     - php
