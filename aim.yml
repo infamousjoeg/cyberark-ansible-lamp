@@ -119,9 +119,10 @@
 
     - name: Onboard MySQL Local User to CyberArk EPV
       uri:
-        url: https://pvwa.192.168.3.102.xip.io/PasswordVault/
-        HEADER_Content-Type: application/json
-        HEADER_Authorization: "{{ cyberark_authn_token }}"
+        url: https://pvwa.192.168.3.102.xip.io/PasswordVault/api/Accounts/
+        headers:
+          Content-Type: application/json
+          Authorization: "{{ cyberark_authn_token }}"
         method: POST 
         status_code: 201
         body:
@@ -135,7 +136,7 @@
           secretManagement:
             automaticManagementEnabled: yes
         body_format: json
-
+        validate_certs: no
 
     - name: Logoff from CyberArk Web Services
       cyberark_authentication:
