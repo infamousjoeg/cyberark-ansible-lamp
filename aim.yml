@@ -48,62 +48,64 @@
     ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret_key'] }}"
     cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
     cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
+    mysql_username: "demo"
+    mysql_password: "Cyberark1"
 
   roles:
     - cyberark.modules
 
   tasks:
-    # - name: Install Apache
-    #   yum:
-    #     name: apache2
-    #     state: present
+    - name: Install Apache
+      yum:
+        name: apache2
+        state: present
 
-    # - name: Install PHP module for Apache
-    #   yum:
-    #     name: libapache2-mod-php5
-    #     state: present
+    - name: Install PHP module for Apache
+      yum:
+        name: libapache2-mod-php5
+        state: present
 
-    # - name: Start Apache
-    #   service:
-    #     name: apache2
-    #     state: running
-    #     enabled: yes
+    - name: Start Apache
+      service:
+        name: apache2
+        state: running
+        enabled: yes
 
-    # - name: Create index.php That Pulls from MariaDB Using CyberArk Secured Secret 
-    #   copy:
-    #     dest: "/var/www/html/index.php"
-    #     content: |
-    #       <?php echo "Hello World!"; ?>
+    - name: Create index.php That Pulls from MariaDB Using CyberArk Secured Secret 
+      copy:
+        dest: "/var/www/html/index.php"
+        content: |
+          <?php echo "Hello World!"; ?>
 
-    # - name: Install MariaDB Server Package
-    #   yum:
-    #     name: mariadb-server
-    #     state: present
+    - name: Install MariaDB Server Package
+      yum:
+        name: mariadb-server
+        state: present
 
-    # - name: Start MySQL Service
-    #   service:
-    #     name: mysql
-    #     state: started
-    #     enabled: true
+    - name: Start MySQL Service
+      service:
+        name: mysql
+        state: started
+        enabled: true
 
-    # - name: Install Python MySQL Package
-    #   yum:
-    #     name: python-mysqldb
-    #     state: present
+    - name: Install Python MySQL Package
+      yum:
+        name: python-mysqldb
+        state: present
 
-    # - name: Create a New Database
-    #   mysql_db:
-    #     name: demo
-    #     state: present
-    #     collation: utf8_general_ci
+    - name: Create a New Database
+      mysql_db:
+        name: demo
+        state: present
+        collation: utf8_general_ci
 
-    # - name: Create a Database User
-    #   mysql_user:
-    #     name: demo
-    #     password: Cyberark1
-    #     priv: "*.*:ALL"
-    #     host: localhost
-    #     state: present
+    - name: Create a Database User
+      mysql_user:
+        name: "{{ mysql_username }}"
+        password: "{{ mysql_password }}"
+        priv: "*.*:ALL"
+        host: localhost
+        state: present
 
     - name: Authenticate to CyberArk Web Services
       cyberark_authentication:
@@ -128,11 +130,11 @@
         body:
           name: "MYSQL-DEMO-USER"
           address: "rhel01.192.168.3.104.xip.io"
-          userName: "test"
+          userName: "{{ mysql_username }}"
           platformId: "MySQL"
           safeName: "D-MYSQL-LOCAL-USERS"
           secretType: "password"
-          secret: "Cyberark1"
+          secret: "{{ mysql_password }}"
           secretManagement:
             automaticManagementEnabled: yes
         body_format: json
@@ -142,3 +144,27 @@
       cyberark_authentication:
         state: absent 
         cyberark_session: "{{ cyberark_session }}"
+
+    - name: Copy sample data to local filesystem /tmp/
+      copy:
+        src: files/dump.sql
+        dest: /tmp/dump.sql
+    
+    - name: Insert sample data into demo table in MySQL
+      shell:
+        cat /tmp/dump.sql | mysql -u '{''{ mysql_username }''}' -p '{''{ mysql_password }''}'
+
+    - name: Install MySQL extension for PHP 
+      yum:
+        name: php5-mysql
+        state: present
+
+    - name: Restart Apache 
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Install Database Connection PHP Script db.php
+      copy:
+        src: files/db.php
+        dest: /var/www/html/db.php
