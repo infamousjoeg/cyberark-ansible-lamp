@@ -111,3 +111,16 @@
         validate_certs: no
         username: "{{ cyberark_secret_username }}"
         password: "{{ cyberark_secret_userpass }}"
+
+    - name: Debug Message
+      debug:
+        var: cyberark_session
+
+    - name: Logoff from CyberArk Web Services
+      cyberark_authentication:
+        state: absent 
+        cyberark_session: "{{ cyberark_session }}"
+
+    - name: Debug Message
+      debug:
+        var: cyberark_session
