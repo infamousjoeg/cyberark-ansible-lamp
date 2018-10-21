@@ -57,13 +57,14 @@
   tasks:
     - name: Install Apache & PHP
       yum:
-        name: "{{ item }}"
+        # name: "{{ item }}"
+        name: httpd
         state: present
       become: yes
-      with_items:
-          - httpd
-          - php
-          - php-mysql
+      # with_items:
+      #     - httpd
+      #     - php
+      #     - php-mysql
 
     - name: Install Web Role Specific Dependencies
       yum:
