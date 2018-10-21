@@ -109,8 +109,8 @@
       cyberark_authentication:
         api_base_url: "https://pvwa.192.168.3.102.xip.io"
         validate_certs: no
-        username: "{{ cyberark_secret_username }}"
-        password: "{{ cyberark_secret_userpass }}"
+        username: "{{ cyberark_rest_user }}"
+        password: "{{ cyberark_rest_pass }}"
 
     - name: Debug Message
       debug:
