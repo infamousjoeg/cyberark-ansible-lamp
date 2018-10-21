@@ -10,21 +10,104 @@
         client_key: "" 
         app_id: "Ansible"
         query: "Safe=D-LIN-ROOT-SSHKEYS;Folder=Root;Object=ANSIBLE-RHEL01-KEY"
-      register: cyberark_response
+      register: cyberark_key_response
       delegate_to: localhost
       no_log: yes
 
-    - name: Set SSH Private Key to Fact Named cyberark_secret
+    - name: Retrieve REST API Service Account for Onboarding to CyberArk
+      cyberark_credential:
+        api_base_url: "https://pvwa.192.168.3.102.xip.io"
+        validate_certs: no
+        client_cert: ""
+        client_key: "" 
+        app_id: "Ansible"
+        query: "Safe=D-CYBR-RESTAPI-ACCTS;Folder=Root;Object=ANSIBLE-RESTAPI-USER"
+      register: cyberark_user_response
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Set SSH Private Key to Fact Named cyberark_secret_key
       set_fact:
-        cyberark_secret: "{{ cyberark_response.result.Content }}"
+        cyberark_secret_key: "{{ cyberark_key_response.result.Content }}"
+      no_log: yes
+
+    - name: Set REST API Username to Fact Named cyberark_secret_username
+      set_fact:
+        cyberark_secret_username: "{{ cyberark_user_response.result.UserName }}"
+      no_log: yes
+    
+    - name: Set REST API User Password to Fact Named cyberark_secret_userpass
+      set_fact:
+        cyberark_secret_userpass: "{{ cyberark_user_response.result.Content }}"
       no_log: yes
 
 - hosts: all
   connection: local 
   gather_facts: no
   vars:
-    ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret'] }}"
+    ansible_ssh_pass: "{{ hostvars['localhost']['cyberark_secret_key'] }}"
+    cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
+    cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
+
+  roles:
+    - cyberark.modules
 
   tasks:
-    - name: DEBUG - List Root of Filesystem
-      shell: ls / 
+    - name: Install Apache
+      yum:
+        name: apache2
+        state: present
+
+    - name: Install PHP module for Apache
+      yum:
+        name: libapache2-mod-php5
+        state: present
+
+    - name: Start Apache
+      service:
+        name: apache2
+        state: running
+        enabled: yes
+
+    - name: Create index.php That Pulls from MariaDB Using CyberArk Secured Secret 
+      copy:
+        dest: "/var/www/html/index.php"
+        content: |
+          <?php echo "Hello World!"; ?>
+
+    - name: Install MariaDB Server Package
+      yum:
+        name: mariadb-server
+        state: present
+
+    - name: Start MySQL Service
+      service:
+        name: mysql
+        state: started
+        enabled: true
+
+    - name: Install Python MySQL Package
+      yum:
+        name: python-mysqldb
+        state: present
+
+    - name: Create a New Database
+      mysql_db:
+        name: demo
+        state: present
+        collation: utf8_general_ci
+
+    - name: Create a Database User
+      mysql_user:
+        name: demo
+        password: Cyberark1
+        priv: "*.*:ALL"
+        host: localhost
+        state: present
+
+    - name: Authenticate to CyberArk Web Services
+      cyberark_authentication:
+        api_base_url: "https://pvwa.192.168.3.102.xip.io"
+        validate_certs: no
+        username: "{{ cyberark_secret_username }}"
+        password: "{{ cyberark_secret_userpass }}"
