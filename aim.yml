@@ -112,15 +112,32 @@
         username: "{{ cyberark_rest_user }}"
         password: "{{ cyberark_rest_pass }}"
 
-    - name: Debug Message
-      debug:
-        var: cyberark_session
+    - name: Set SSH Private Key to Fact Named cyberark_secret_key
+      set_fact:
+        cyberark_authn_token: "{{ cyberark_session.token }}"
+      no_log: yes
+
+    - name: Onboard MySQL Local User to CyberArk EPV
+      uri:
+        url: https://pvwa.192.168.3.102.xip.io/PasswordVault/
+        HEADER_Content-Type: application/json
+        HEADER_Authorization: "{{ cyberark_authn_token }}"
+        method: POST 
+        status_code: 201
+        body:
+          name: "MYSQL-DEMO-USER"
+          address: "rhel01.192.168.3.104.xip.io"
+          userName: "test"
+          platformId: "MySQL"
+          safeName: "D-MYSQL-LOCAL-USERS"
+          secretType: "password"
+          secret: "Cyberark1"
+          secretManagement:
+            automaticManagementEnabled: yes
+        body_format: json
+
 
     - name: Logoff from CyberArk Web Services
       cyberark_authentication:
         state: absent 
         cyberark_session: "{{ cyberark_session }}"
-
-    - name: Debug Message
-      debug:
-        var: cyberark_session
