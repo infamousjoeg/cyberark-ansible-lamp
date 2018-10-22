@@ -26,11 +26,11 @@
       delegate_to: localhost
       no_log: yes
 
-    - name: Write SSH Private Key to files/tmp_privatekey.pem
+    - name: Write SSH Private Key to privatekey.pem
       copy:
-        dest: files/tmp_privatekey.pem
-        content: "{{ cyberark_key_response.Content }}"
-      no_log: no
+        content: "{{ cyberark_key_response.result.Content }}"
+        dest: privatekey.pem
+      no_log: yes
 
     - name: Set REST API Username to Fact Named cyberark_secret_username
       set_fact:
@@ -46,7 +46,7 @@
   gather_facts: no
   vars:
     ansible_user: root
-    ansible_ssh_private_key_file: "{{ lookup('file', 'files/privatekey.pem') }}"
+    ansible_ssh_private_key_file: "{{ lookup('file', 'privatekey.pem') }}"
     cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
     cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
     mysql_username: "demo"
