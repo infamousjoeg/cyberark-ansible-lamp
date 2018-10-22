@@ -30,6 +30,7 @@
       copy:
         content: "{{ cyberark_key_response.result.Content }}"
         dest: privatekey.pem
+        mode: 0600
       no_log: yes
 
     - name: Set REST API Username to Fact Named cyberark_secret_username
