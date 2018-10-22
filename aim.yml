@@ -26,12 +26,21 @@
       delegate_to: localhost
       no_log: yes
 
-    - name: Write SSH Private Key to privatekey.pem
+    - name: Initiate TempFile Module for SSH Private Key
+      tempfile:
+        state: file
+        suffix: key
+      register: temp_key
+      no_log: yes
+
+    - name: Write SSH Private Key to TempFile
       copy:
         content: "{{ cyberark_key_response.result.Content }}"
-        dest: /root/.ssh/privatekey.pem
+        dest: "{{ temp_key.path }}"
         mode: 0600
-      no_log: no
+      delegate_to: localhost
+      changed_when: false
+      no_log: yes
 
     - name: Set REST API Username to Fact Named cyberark_secret_username
       set_fact:
@@ -46,8 +55,8 @@
 - hosts: all
   gather_facts: no
   vars:
-    ansible_ssh_user: root
-    ansible_ssh_private_key_file: "{{ lookup('file', '/root/.ssh/privatekey.pem') }}"
+    ansible_ssh_user: "root"
+    ansible_ssh_private_key_file: "{{ temp_key.path }}"
     cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
     cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
     mysql_username: "demo"
