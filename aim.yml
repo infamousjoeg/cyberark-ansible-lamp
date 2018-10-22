@@ -14,10 +14,6 @@
       delegate_to: localhost
       no_log: yes
 
-    - name: DEBUG Private Key for Login
-      debug:
-        msg: "{{ cyberark_key_response }}"
-
     - name: Retrieve REST API Service Account for Onboarding to CyberArk
       cyberark_credential:
         api_base_url: "https://pvwa.192.168.3.102.xip.io"
