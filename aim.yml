@@ -29,9 +29,8 @@
     - name: Write SSH Private Key to files/tmp_privatekey.pem
       copy:
         dest: files/tmp_privatekey.pem
-        content: |
-          "{{ cyberark_key_response.Content }}"
-      no_log: yes
+        content: "{{ cyberark_key_response.Content }}"
+      no_log: no
 
     - name: Set REST API Username to Fact Named cyberark_secret_username
       set_fact:
