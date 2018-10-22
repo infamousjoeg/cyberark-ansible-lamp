@@ -16,7 +16,7 @@
 
     - name: DEBUG Private Key for Login 
       debug:
-        var: "{{ cyherark_key_response }}"
+        var: "{{ cyberark_key_response }}"
 
     - name: Retrieve REST API Service Account for Onboarding to CyberArk
       cyberark_credential:
