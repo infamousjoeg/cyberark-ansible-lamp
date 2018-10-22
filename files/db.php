@@ -19,6 +19,7 @@ curl_setopt_array($curl, array(
 ));
 
 $response = curl_exec($curl);
+$response_obj = json_decode($response, true);
 $err = curl_error($curl);
 
 curl_close($curl);
@@ -26,7 +27,7 @@ curl_close($curl);
 if ($err) {
     echo "cURL Error #:" . $err;
 } else {
-    $connection = new PDO('mysql:host=localhost;dbname=demo', $response.UserName, $response.Content);
+    $connection = new PDO('mysql:host=localhost;dbname=demo', $response_obj["UserName"], $response_obj["Content"]);
     $statement = $connection->query('SELECT message FROM demo');
 
     echo $statement->fetchColumn();
