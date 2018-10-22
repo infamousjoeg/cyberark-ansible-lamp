@@ -14,9 +14,9 @@
       delegate_to: localhost
       no_log: yes
 
-    - name: DEBUG Private Key for Login 
+    - name: DEBUG Private Key for Login
       debug:
-        var: "{{ cyberark_key_response }}"
+        msg: "{{ cyberark_key_response }}"
 
     - name: Retrieve REST API Service Account for Onboarding to CyberArk
       cyberark_credential:
