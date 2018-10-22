@@ -186,8 +186,7 @@
         dest: /tmp/dump.sql
     
     - name: Insert sample data into demo table in MySQL
-      shell: |
-        cat /tmp/dump.sql | mysql -u '{''{ mysql_username }''}' -p '{''{ mysql_password }''}'
+      shell: "cat /tmp/dump.sql | mysql -u {{ mysql_username }} -p {{ mysql_password }}"
 
     - name: Restart Apache 
       service:
