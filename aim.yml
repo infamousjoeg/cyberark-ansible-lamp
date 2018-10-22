@@ -31,7 +31,7 @@
         content: "{{ cyberark_key_response.result.Content }}"
         dest: /root/.ssh/privatekey.pem
         mode: 0600
-      no_log: yes
+      no_log: no
 
     - name: Set REST API Username to Fact Named cyberark_secret_username
       set_fact:
