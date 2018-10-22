@@ -114,7 +114,7 @@
         state: present
       with_items:
           - mariadb-server
-          - python-mysqldb
+          - MySQL-python
 
     - name: Configure SELinux to Start MySQL on Any Port 
       seboolean:
