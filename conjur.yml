@@ -124,6 +124,11 @@
         dest: /etc/conjur.identity
         mode: 0640
         group: conjur
+    - lineinfile:
+        dest: /root/.bashrc
+        line: "export CONJUR_AUTHN_API_KEY={{ host_machineidentity.json.api_key }}"
+        insertafter: "EOF"
+        state: present
 
     - name: Add apache user to conjur group
       command: usermod apache --append --groups conjur
