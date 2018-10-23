@@ -44,6 +44,10 @@
       delegate_to: localhost
       no_log: yes
 
+    - name: Set Conjur Public SSL Certificate to Fact Named conjur_ssl_certificate
+      set_fact:
+        conjur_ssl_certificate: "{{ ansible_env.CLIENT_CERTIFICATE }}"
+
     - name: Initiate TempFile Module for SSH Private Key
       tempfile:
         state: file
@@ -76,6 +80,7 @@
     ansible_ssh_private_key_file: "{{ hostvars['localhost']['cyberark_ssh_privatekey'] }}"
     conjur_account: "joe-garcia"
     conjur_appliance_url: "{{ hostvars['localhost']['conjur_appliance_url'] }}"
+    conjur_ssl_certificate: "{{ hostvars['localhost']['conjur_ssl_certificate'] }}"
     conjur_jwt: "{{ hostvars['localhost']['cyberark_conjur_jwt'] }}"
     conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
     mysql_username: "demo-conjur"
@@ -88,7 +93,7 @@
 
     - name: Copy Conjur Public Key to /etc/
       copy:
-        src: "files/conjur-{{ conjur_account }}.pem"
+        contents: "{{ conjur_ssl_certificate }}"
         dest: "/etc/conjur-{{ conjur_account }}.pem"
         mode: 0644
         group: conjur
