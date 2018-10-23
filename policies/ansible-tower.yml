@@ -1,6 +1,9 @@
 - !policy
   id: nodes
   body:
+    - &secret-variables
+      - !variable rhel01.192.168.3.104.xip.io/ssh/privatekey
+    
     - !layer
     
     - !host-factory
@@ -13,3 +16,8 @@
     - !grant
       role: !layer
       member: !host tower/dev
+
+    - !permit
+      role: !layer
+      privileges: [ read, execute ]
+      resource: *secret-variables
