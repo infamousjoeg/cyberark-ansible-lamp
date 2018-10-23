@@ -1,6 +1,6 @@
 ---
-- include: pre_cyberkark.yml
-- include: apache.yml
-- include: mysql.yml
-- include: cyberark.yml
-- include: deploy.yml
+- import_playbook: pre_cyberkark.yml
+- import_playbook: apache.yml
+- import_playbook: mysql.yml
+- import_playbook: cyberark.yml
+- import_playbook: deploy.yml
