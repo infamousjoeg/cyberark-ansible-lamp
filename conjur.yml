@@ -74,22 +74,33 @@
   vars:
     ansible_ssh_user: "root"
     ansible_ssh_private_key_file: "{{ hostvars['localhost']['cyberark_ssh_privatekey'] }}"
+    conjur_account: "joe-garcia"
     conjur_appliance_url: "{{ hostvars['localhost']['conjur_appliance_url'] }}"
     conjur_jwt: "{{ hostvars['localhost']['cyberark_conjur_jwt'] }}"
     conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
     mysql_username: "demo-conjur"
 
-  # roles:
-  #   - role: cyberark.conjur
-  #     conjur_appliance_url: "https://conjur.192.168.3.105.xip.io"
-  #     conjur_account: "joe-garcia"
-  #     conjur_host_factory_token: "{{ conjur_hf_token }}"
-  #     conjur_host_name: "{{ inventory_hostname }}"
-  #     conjur_ssl_certificate: ""
-  #     conjur_validate_certs: no
-
   tasks:
-    - name: Create a Machine Identity for Host in Conjur
+    - name: Create group conjur
+      group:
+        name: conjur
+        state: present
+
+    - name: Copy Conjur Public Key to /etc/
+      copy:
+        src: "files/conjur-{{ conjur_account }}.pem"
+        dest: "/etc/conjur-{{ conjur_account }}.pem"
+        mode: 0644
+        group: conjur
+        state: present
+    
+    - name: Render /etc/conjur.conf
+      template:
+        src: templates/conjur.conf.j2
+        dest: /etc/conjur.conf
+        mode: 0644
+
+    - name: Request Machine Identity from Conjur
       uri:
         url: "{{ conjur_appliance_url }}/host_factories/hosts"
         method: POST
@@ -97,10 +108,9 @@
         validate_certs: no
         headers:
           Authorization: Token token="{{ conjur_hf_token }}"
-          Content-Type: "application/json"
+          Content-Type: "application/x-www-form-urlencoded"
         body: "id={{ inventory_hostname }}"
-        status: 201
-        return_content: yes
+        status_code: 201
       register: host_machineidentity
       no_log: no
 
@@ -108,9 +118,12 @@
       debug:
         msg: "{{ host_machineidentity }}"
 
-    #- name: Create /etc/conjur.identity
-
-    #- name: Create /etc/conjur.conf
+    - name: Place identity file /etc/conjur.identity
+      template:
+        src: templates/conjur.identity.j2
+        dest: /etc/conjur.identity
+        mode: 0640
+        group: conjur
 
     - name: Install Apache & PHP
       yum:

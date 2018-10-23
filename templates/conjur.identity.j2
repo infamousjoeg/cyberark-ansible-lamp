@@ -1,0 +1,3 @@
+machine {{ conjur_appliance_url }}/authn
+    login host/{{ inventory_hostname }}
+    password {{ host_machineidentity.json.api_key }}
