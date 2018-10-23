@@ -38,26 +38,6 @@
       delegate_to: localhost
       no_log: yes
 
-    - name: Generate Host Factory Token with 10m TTL 
-      uri:
-        url: "{{ansible_env.CONJUR_APPLIANCE_URL}}/host_factory_tokens"
-        method: POST
-        timeout: 10
-        validate_certs: no
-        headers:
-          Authorization: Token token="{{ cyberark_conjur_jwt }}"
-          Content-Type: "application/json"
-        body:
-          expiration: "{{ '%Y-%m-%dT%h:%M:%S+00:00' | strftime((ansible_date_time.epoch | int) + 10) }}"
-          host_factory: "joe-garcia:host_factory:ansible-tower/nodes/host-factory"
-          count: "1"
-        body_format: json
-        return_content: yes
-        status_code: 200      
-      register: hostfactory_value
-      delegate_to: localhost
-      no_log: no
-
     - name: Initiate TempFile Module for SSH Private Key
       tempfile:
         state: file
@@ -78,9 +58,9 @@
         cyberark_ssh_privatekey: "{{ temp_key.path }}"
       no_log: yes
 
-    - name: Set Host Factory Token to Fact Named cyberark_host_factory_token
+    - name: Set CIDR-Restricted Host Factory Token to Fact Named cyberark_host_factory_token
       set_fact:
-        cyberark_host_factory_token: "{{ hostfactory_value.content | replace('\r\n', '') }}"
+        cyberark_host_factory_token: "e6fev03rb3qarv8ny6h36g2djt2ze0rne1t0m3p823m0xsr2zjt99a"
       no_log: yes
 
 - hosts: all
