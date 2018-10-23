@@ -7,5 +7,5 @@
 
     - !permit
       role: !layer /ansible-tower/nodes
-      privileges: [ read, execute ]
+      privileges: [ read, execute, update ]
       resource: *secret-variables

@@ -72,16 +72,39 @@
     conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
     mysql_username: "demo-conjur"
 
-  roles:
-    - role: cyberark.conjur
-      conjur_appliance_url: "https://conjur.192.168.3.105.xip.io"
-      conjur_account: "joe-garcia"
-      conjur_host_factory_token: "{{ conjur_hf_token }}"
-      conjur_host_name: "{{ inventory_hostname }}"
-      conjur_ssl_certificate: ""
-      conjur_validate_certs: no
+  # roles:
+  #   - role: cyberark.conjur
+  #     conjur_appliance_url: "https://conjur.192.168.3.105.xip.io"
+  #     conjur_account: "joe-garcia"
+  #     conjur_host_factory_token: "{{ conjur_hf_token }}"
+  #     conjur_host_name: "{{ inventory_hostname }}"
+  #     conjur_ssl_certificate: ""
+  #     conjur_validate_certs: no
 
   tasks:
+    - name: Create a Machine Identity for Host in Conjur
+      uri:
+        url: "{{ansible_env.CONJUR_APPLIANCE_URL}}/host_factories/hosts"
+        method: POST
+        timeout: 10
+        validate_certs: no
+        headers:
+          Authorization: Token token="{{ conjur_hf_token }}"
+          Content-Type: "application/json"
+        body: "id={{ inventory_hostname }}"
+        status: 201
+        return_content: yes
+      register: host_machineidentity
+      no_log: yes
+
+    - name: Print output from Host Factory Turn-In
+      debug:
+        msg: "{{ host_machineidentity }}"
+
+    - name: Create /etc/conjur.identity
+
+    - name: Create /etc/conjur.conf
+
     - name: Install Apache & PHP
       yum:
         name: "{{ item }}"
