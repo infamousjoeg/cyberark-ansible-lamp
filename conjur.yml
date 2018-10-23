@@ -243,3 +243,7 @@
       copy:
         src: files/db-conjur.php
         dest: /var/www/html/db-conjur.php
+
+    - name: Start Secretless Broker in the Background
+      shell: |
+        nohup secretless-broker </dev/null >/dev/null 2>&1 &
