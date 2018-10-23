@@ -93,7 +93,7 @@
 
     - name: Copy Conjur Public Key to /etc/
       copy:
-        content: "{{ conjur_ssl_certificate }}"
+        src: "{{ conjur_ssl_certificate }}"
         dest: "/etc/conjur-{{ conjur_account }}.pem"
         mode: 0644
         group: conjur
