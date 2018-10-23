@@ -1,0 +1,51 @@
+- hosts: all
+  gather_facts: yes
+  vars:
+    ansible_ssh_user: "root"
+    ansible_ssh_private_key_file: "{{ hostvars['localhost']['cyberark_ssh_privatekey'] }}"
+    cyberark_rest_user: "{{ hostvars['localhost']['cyberark_secret_username'] }}"
+    cyberark_rest_pass: "{{ hostvars['localhost']['cyberark_secret_userpass'] }}"
+    mysql_username: "demo"
+    mysql_password: "Cyberark1"
+
+  roles:
+    - cyberark.modules
+
+  tasks:
+    - name: Install Apache & PHP
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - httpd
+          - php
+          - php-mysql
+
+    - name: Install Web Role Specific Dependencies
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - git
+          - wget
+          - curl
+          - jq
+          - libsemanage-python
+
+    - name: Start Apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Configure SELinux to Allow httpd Connection to Remote Database
+      seboolean:
+        name: httpd_can_network_connect_db
+        state: true
+        persistent: yes
+
+    - name: Create index.php Start Page
+      copy:
+        dest: "/var/www/html/index.php"
+        content: |
+          <?php echo "Hello World!"; ?>

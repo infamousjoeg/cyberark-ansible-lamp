@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+
+  tasks:
+    - name: Retrieve SSH Private Key for Login from CyberArk
+      cyberark_credential:
+        api_base_url: "https://pvwa.192.168.3.102.xip.io"
+        validate_certs: no
+        client_cert: ""
+        client_key: "" 
+        app_id: "Ansible"
+        query: "Safe=D-LIN-ROOT-SSHKEYS;Folder=Root;Object=ANSIBLE-RHEL01-KEY"
+      register: cyberark_key_response
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Retrieve REST API Service Account for Onboarding to CyberArk
+      cyberark_credential:
+        api_base_url: "https://pvwa.192.168.3.102.xip.io"
+        validate_certs: no
+        client_cert: ""
+        client_key: "" 
+        app_id: "Ansible"
+        query: "Safe=D-CYBR-RESTAPI-ACCTS;Folder=Root;Object=ANSIBLE-RESTAPI-USER"
+      register: cyberark_user_response
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Initiate TempFile Module for SSH Private Key
+      tempfile:
+        state: file
+        suffix: key
+      register: temp_key
+      no_log: yes
+
+    - name: Write SSH Private Key to TempFile
+      copy:
+        dest: "{{ temp_key.path }}"
+        content: "{{ cyberark_key_response.result.Content }}"
+      delegate_to: localhost
+      changed_when: false
+      no_log: yes
+      
+    - name: Set SSH Private Key TempFile to Fact Named cyberark_ssh_privatekey
+      set_fact:
+        cyberark_ssh_privatekey: "{{ temp_key.path }}"
+      no_log: yes
+
+    - name: Set REST API Username to Fact Named cyberark_secret_username
+      set_fact:
+        cyberark_secret_username: "{{ cyberark_user_response.result.UserName }}"
+      no_log: yes
+    
+    - name: Set REST API User Password to Fact Named cyberark_secret_userpass
+      set_fact:
+        cyberark_secret_userpass: "{{ cyberark_user_response.result.Content }}"
+      no_log: yes

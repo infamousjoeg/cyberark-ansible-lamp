@@ -1,0 +1,33 @@
+    - name: Install MariaDB Package
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - mariadb-server
+          - MySQL-python
+
+    - name: Configure SELinux to Start MySQL on Any Port 
+      seboolean:
+        name: mysql_connect_any
+        state: true
+        persistent: yes
+
+    - name: Start MySQL Service
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Create a New Database
+      mysql_db:
+        name: demo
+        state: present
+        collation: utf8_general_ci
+
+    - name: Create a Database User
+      mysql_user:
+        name: "{{ mysql_username }}"
+        password: "{{ mysql_password }}"
+        priv: "*.*:ALL"
+        host: localhost
+        state: present
