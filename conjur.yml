@@ -163,14 +163,12 @@
       uri:
         url: https://conjur.192.168.3.105.xip.io/secrets/joe-garcia/variable/helloworldphp%2Fwebapp%2Fmysqldb%2Fpassword
         headers:
-          Content-Type: "text/plain"
           Authorization: Token token="{{ conjur_jwt }}"
-        method: POST 
+        method: POST
         status_code: 201
         body: "{{ mysql_password }}"
-        body_format: raw
         validate_certs: no
-      no_log: yes
+      no_log: no
 
     - name: Copy sample data to local filesystem /tmp/
       copy:
