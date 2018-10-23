@@ -38,6 +38,12 @@
       delegate_to: localhost
       no_log: yes
 
+    - name: Set Conjur Appliance URL to Fact Named conjur_appliance_url
+      set_fact:
+        conjur_appliance_url: "{{ ansible_env.CONJUR_APPLIANCE_URL }}"
+      delegate_to: localhost
+      no_log: yes
+
     - name: Initiate TempFile Module for SSH Private Key
       tempfile:
         state: file
@@ -68,6 +74,7 @@
   vars:
     ansible_ssh_user: "root"
     ansible_ssh_private_key_file: "{{ hostvars['localhost']['cyberark_ssh_privatekey'] }}"
+    conjur_appliance_url: "{{ hostvars['localhost']['conjur_appliance_url'] }}"
     conjur_jwt: "{{ hostvars['localhost']['cyberark_conjur_jwt'] }}"
     conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
     mysql_username: "demo-conjur"
@@ -84,7 +91,7 @@
   tasks:
     - name: Create a Machine Identity for Host in Conjur
       uri:
-        url: "{{ansible_env.CONJUR_APPLIANCE_URL}}/host_factories/hosts"
+        url: "{{ conjur_appliance_url }}/host_factories/hosts"
         method: POST
         timeout: 10
         validate_certs: no
