@@ -130,6 +130,11 @@
         insertafter: "EOF"
         state: present
 
+    - name: Copy Secretless Listener/Handler Config for a Secretless PHP Webapp
+      copy:
+        src: policies/secretless.yml
+        dest: /root/secretless.yml
+
     - name: Install Apache & PHP
       yum:
         name: "{{ item }}"
