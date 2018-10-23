@@ -130,9 +130,6 @@
         insertafter: "EOF"
         state: present
 
-    - name: Add apache user to conjur group
-      command: usermod apache --append --groups conjur
-
     - name: Install Apache & PHP
       yum:
         name: "{{ item }}"
@@ -141,6 +138,9 @@
           - httpd
           - php
           - php-mysql
+
+    - name: Add apache user to conjur group
+      command: usermod apache --append --groups conjur
 
     - name: Install Web Role Specific Dependencies
       yum:
