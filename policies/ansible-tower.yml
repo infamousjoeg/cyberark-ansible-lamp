@@ -1,5 +1,6 @@
 - !policy
   id: nodes
+  owner: !user /admin
   body:
     - &secret-variables
       - !variable rhel01.192.168.3.104.xip.io/ssh/privatekey

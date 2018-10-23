@@ -1,0 +1,208 @@
+---
+- hosts: localhost
+
+  tasks:
+    - name: Authenticate to Conjur via API for JWT
+      uri:
+        url: "{{ ansible_env.CONJUR_APPLIANCE_URL }}/authn/joe-garcia/host%2Fansible-tower%2Fnodes%2Ftower%2Fdev/authenticate"
+        method: POST
+        timeout: 10
+        validate_certs: no
+        headers:
+          Content-Type: "text/plain"
+        body: "{{ ansible_env.CONJUR_AUTHN_API_KEY }}"
+        return_content: yes
+        status_code: 200
+        body_format: json
+      register: token_json
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Set Conjur API JWT to Fact Named cyberark_conjur_jwt
+      set_fact:
+        cyberark_conjur_jwt: "{{ token_json.content | b64encode | replace('\r\n', '') }}"
+      no_log: yes
+
+    - name: Retrieve SSH Private Key for Hosts
+      uri:
+        url: "{{ansible_env.CONJUR_APPLIANCE_URL}}/secrets/joe-garcia/variable/ansible-tower%2Fnodes%2Frhel01.192.168.3.104.xip.io%2Fssh%2Fprivatekey?version=1"
+        method: GET
+        timeout: 10
+        validate_certs: no
+        headers:
+          Authorization: Token token="{{ cyberark_conjur_jwt }}"
+          Content-Type: "application/json"
+        return_content: yes
+        status_code: 200      
+      register: variable_value
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Generate Host Factory Token with 10m TTL 
+      uri:
+        url: "{{ansible_env.CONJUR_APPLIANCE_URL}}/host_factory_tokens"
+        method: POST
+        timeout: 10
+        validate_certs: no
+        headers:
+          Authorization: Token token="{{ cyberark_conjur_jwt }}"
+          Content-Type: "application/json"
+        body:
+          expiration: "{{ '%Y-%m-%dT%h:%M:%S+00:00' | strftime((ansible_date_time.epoch | int) + 10) }}"
+          host_factory: "joe-garcia:host_factory:ansible-tower/nodes/host-factory"
+          count: "1"
+          cidr: "192.168.3.104"
+        body_format: json
+        return_content: yes
+        status_code: 200      
+      register: hostfactory_value
+      delegate_to: localhost
+      no_log: yes
+
+    - name: Initiate TempFile Module for SSH Private Key
+      tempfile:
+        state: file
+        suffix: key
+      register: temp_key
+      no_log: yes
+
+    - name: Write SSH Private Key to TempFile
+      copy:
+        dest: "{{ temp_key.path }}"
+        content: "{{ variable_value.content }}"
+      delegate_to: localhost
+      changed_when: false
+      no_log: yes
+      
+    - name: Set SSH Private Key TempFile to Fact Named cyberark_ssh_privatekey
+      set_fact:
+        cyberark_ssh_privatekey: "{{ temp_key.path }}"
+      no_log: yes
+
+    - name: Set Host Factory Token to Fact Named cyberark_host_factory_token
+      set_fact:
+        cyberark_host_factory_token: "{{ hostfactory_value.content | replace('\r\n', '') }}"
+      no_log: yes
+
+- hosts: all
+  gather_facts: yes
+  vars:
+    ansible_ssh_user: "root"
+    ansible_ssh_private_key_file: "{{ hostvars['localhost']['cyberark_ssh_privatekey'] }}"
+    conjur_jwt: "{{ hostvars['localhost']['cyberark_conjur_jwt'] }}"
+    conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
+    mysql_username: "demo-conjur"
+    mysql_password: "Cyberark1"
+
+  roles:
+    - role: cyberark.conjur
+      conjur_appliance_url: "https://conjur.192.168.3.105.xip.io"
+      conjur_account: "joe-garcia"
+      conjur_host_factory_token: "{{ conjur_hf_token }}"
+      conjur_host_name: "{{ inventory_hostname }}"
+      conjur_ssl_certificate: ""
+      conjur_validate_certs: no
+
+  tasks:
+    - name: Install Apache & PHP
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - httpd
+          - php
+          - php-mysql
+
+    - name: Install Web Role Specific Dependencies
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - git
+          - wget
+          - curl
+          - jq
+          - libsemanage-python
+
+    - name: Start Apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Configure SELinux to Allow httpd Connection to Remote Database
+      seboolean:
+        name: httpd_can_network_connect_db
+        state: true
+        persistent: yes
+
+    - name: Create index.php Start Page
+      copy:
+        dest: "/var/www/html/index.php"
+        content: |
+          <?php echo "Hello World!"; ?>
+
+    - name: Install MariaDB Package
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+          - mariadb-server
+          - MySQL-python
+
+    - name: Configure SELinux to Start MySQL on Any Port 
+      seboolean:
+        name: mysql_connect_any
+        state: true
+        persistent: yes
+
+    - name: Start MySQL Service
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Create a New Database
+      mysql_db:
+        name: demo-conjur
+        state: present
+        collation: utf8_general_ci
+
+    - name: Create a Database User
+      mysql_user:
+        name: "{{ mysql_username }}"
+        password: "{{ mysql_password }}"
+        priv: "*.*:ALL"
+        host: localhost
+        state: present
+
+    - name: Onboard MySQL Local User to CyberArk Conjur via API
+      uri:
+        url: https://conjur.192.168.3.105.xip.io/secrets/joe-garcia/variable/helloworldphp%2Fwebapp%2Fmysqldb%2Fpassword
+        headers:
+          Content-Type: "text/plain"
+          Authorization: Token token="{{ conjur_jwt }}"
+        method: POST 
+        status_code: 201
+        body: "{{ mysql_password }}"
+        body_format: raw
+        validate_certs: no
+      no_log: yes
+
+    - name: Copy sample data to local filesystem /tmp/
+      copy:
+        src: files/dump.sql
+        dest: /tmp/dump.sql
+    
+    - name: Insert sample data into demo table in MySQL
+      shell: "mysql -u {{ mysql_username }} -p{{ mysql_password }} demo-conjur < /tmp/dump.sql"
+
+    - name: Restart Apache 
+      service:
+        name: httpd
+        state: restarted
+
+    - name: Install Database Connection PHP Script db-conjur.php
+      copy:
+        src: files/db-conjur.php
+        dest: /var/www/html/db-conjur.php
