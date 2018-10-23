@@ -97,7 +97,6 @@
         dest: "/etc/conjur-{{ conjur_account }}.pem"
         mode: 0644
         group: conjur
-        state: present
     
     - name: Render /etc/conjur.conf
       template:
