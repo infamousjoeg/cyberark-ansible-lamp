@@ -101,9 +101,9 @@
       debug:
         msg: "{{ host_machineidentity }}"
 
-    - name: Create /etc/conjur.identity
+    #- name: Create /etc/conjur.identity
 
-    - name: Create /etc/conjur.conf
+    #- name: Create /etc/conjur.conf
 
     - name: Install Apache & PHP
       yum:
