@@ -1,6 +1,6 @@
 ---
-- !include pre_cyberkark.yml
-- !include apache.yml
-- !include mysql.yml
-- !include cyberark.yml
-- !include deploy.yml
+- include: pre_cyberkark.yml
+- include: apache.yml
+- include: mysql.yml
+- include: cyberark.yml
+- include: deploy.yml
