@@ -95,7 +95,7 @@
         status: 201
         return_content: yes
       register: host_machineidentity
-      no_log: yes
+      no_log: no
 
     - name: Print output from Host Factory Turn-In
       debug:
