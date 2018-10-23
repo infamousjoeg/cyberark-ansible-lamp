@@ -64,9 +64,9 @@
         cyberark_ssh_privatekey: "{{ temp_key.path }}"
       no_log: yes
 
-    - name: Set CIDR-Restricted Host Factory Token to Fact Named cyberark_host_factory_token
+    - name: Set CIDR-Restricted Host Factory Token to Fact Named conjur_host_factory_token
       set_fact:
-        cyberark_host_factory_token: "e6fev03rb3qarv8ny6h36g2djt2ze0rne1t0m3p823m0xsr2zjt99a"
+        conjur_host_factory_token: "e6fev03rb3qarv8ny6h36g2djt2ze0rne1t0m3p823m0xsr2zjt99a"
       no_log: yes
 
 - hosts: all
