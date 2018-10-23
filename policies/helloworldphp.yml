@@ -1,0 +1,11 @@
+- !policy
+  id: webapp
+  body:
+    - &secret-variables
+      - !variable mysqldb/username
+      - !variable mysqldb/password
+
+    - !permit
+      role: !layer /ansible-tower/nodes
+      privileges: [ read, execute ]
+      resource: *secret-variables

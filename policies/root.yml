@@ -1,0 +1,7 @@
+- !policy
+  id: ansible-tower
+  owner: !user admin
+
+- !policy
+  id: helloworldphp
+  owner: !user admin

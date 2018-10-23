@@ -1,0 +1,15 @@
+- !policy
+  id: nodes
+  body:
+    - !layer
+    
+    - !host-factory
+      id: host-factory
+      layers:
+        - !layer
+
+    - !host tower/dev
+
+    - !grant
+      role: !layer
+      member: !host tower/dev
