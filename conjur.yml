@@ -92,7 +92,6 @@
     conjur_jwt: "{{ hostvars['localhost']['cyberark_conjur_jwt'] }}"
     conjur_hf_token: "{{ hostvars['localhost']['conjur_host_factory_token'] }}"
     mysql_username: "demo-conjur"
-    mysql_password: "Cyberark1"
 
   roles:
     - role: cyberark.conjur
@@ -167,6 +166,11 @@
         name: demo-conjur
         state: present
         collation: utf8_general_ci
+
+    - name: Set Fact with Randomized Password for MySQL Database User
+      set_fact:
+        mysql_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+      no_log: yes
 
     - name: Create a Database User
       mysql_user:
