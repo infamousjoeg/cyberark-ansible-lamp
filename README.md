@@ -1,6 +1,5 @@
 # CyberArk & Ansible - Secured LAMP Stack Deployment
 
-<<<<<<< HEAD
 This is an example of how to deploy a LAMP Stack using [Ansible Tower](https://www.ansible.com/license) secured bi-directionally with [CyberArk PAS Core & Application Identity Manager (AIM)](https://cyberark.com) and, separately, [CyberArk Conjur](https://conjur.org).
 
 ## Getting Started
@@ -23,25 +22,6 @@ These instructions will get you a copy of the project up and running on your loc
   * `$ ansible-galaxy install cyberark.modules`
 
 ### Configuration
-=======
-This is an example of how to deploy a LAMP Stack using Ansible Tower secured bi-directionally with CyberArk PAS Core & Application Identity Manager (AIM) and, separately, CyberArk Conjur.
-
-## Technical Summary
-
-Tested on RHEL 7.5 VM remote from RHEL 7.5 Ansible Tower Controller.
-
-### CyberArk PAS Core + AIM
-
-Using secrets stored and automatically managed in CyberArk EPV, we are able to fetch the secrets when needed into a playbook running in a Job Template within Ansible Tower.
-
-#### YouTube Video Demonstration & Walkthrough
-
-[![CyberArk & Ansible - AIM Bi-Directional Integration](https://img.youtube.com/vi/PHT76FYLNbY/0.jpg)](https://www.youtube.com/watch?v=PHT76FYLNbY)
-
-#### Roles Needed
-
-`$ ansible-galaxy install cyberark.modules`
->>>>>>> 44c1c3fc0b44ff449fa9834ae7bbf2b622a6f5e1
 
 #### Setup in CyberArk EPV
 
@@ -77,7 +57,6 @@ Using secrets stored and automatically managed in CyberArk EPV, we are able to f
 3. Make sure the values in `conjur.yml` match your environment.
 4. Launch the Job!
 
-<<<<<<< HEAD
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
@@ -95,8 +74,3 @@ See also the list of [contributors](https://github.com/infamousjoeg/cyberark-ans
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-=======
-# License
-
-MIT
->>>>>>> 44c1c3fc0b44ff449fa9834ae7bbf2b622a6f5e1
