@@ -10,6 +10,8 @@ Tested on RHEL 7.5 VM remote from RHEL 7.5 Ansible Tower Controller.
 
 Using secrets stored and automatically managed in CyberArk EPV, we are able to fetch the secrets when needed into a playbook running in a Job Template within Ansible Tower.
 
+[![CyberArk & Ansible - AIM Bi-Directional Integration](https://img.youtube.com/vi/PHT76FYLNbY/0.jpg)](https://www.youtube.com/watch?v=PHT76FYLNbY)
+
 #### Roles Needed
 
 `$ ansible-galaxy install cyberark.modules`
