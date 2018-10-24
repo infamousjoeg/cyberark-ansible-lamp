@@ -12,7 +12,7 @@
         query: "Safe=D-LIN-ROOT-SSHKEYS;Folder=Root;Object=ANSIBLE-RHEL01-KEY"
       register: cyberark_key_response
       delegate_to: localhost
-      no_log: yes
+      no_log: no
 
     - name: Retrieve REST API Service Account for Onboarding to CyberArk
       cyberark_credential:
