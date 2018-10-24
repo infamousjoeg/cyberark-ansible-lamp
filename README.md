@@ -4,8 +4,6 @@ This is an example of how to deploy a LAMP Stack using [Ansible Tower](https://w
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
 ### YouTube Video Demonstration & Walkthrough
 
 [![CyberArk & Ansible - AIM Bi-Directional Integration](https://img.youtube.com/vi/PHT76FYLNbY/0.jpg)](https://www.youtube.com/watch?v=PHT76FYLNbY)
