@@ -124,11 +124,6 @@
         dest: /etc/conjur.identity
         mode: 0640
         group: conjur
-    - lineinfile:
-        dest: /root/.bashrc
-        line: "export CONJUR_AUTHN_API_KEY={{ host_machineidentity.json.api_key }}"
-        insertafter: "EOF"
-        state: present
 
     - name: Copy Secretless Listener/Handler Config for a Secretless PHP Webapp
       copy:
@@ -244,6 +239,11 @@
         src: files/db-conjur.php
         dest: /var/www/html/db-conjur.php
 
-    - name: Start Secretless Broker in the Background
-      shell: |
-        nohup secretless-broker </dev/null >/dev/null 2>&1 &
+    - name: Install Database Connection PHP Script db-secretless.php
+      copy:
+        src: files/db-secretless.php
+        dest: /var/www/html/db-secretless.php
+
+    # - name: Start Secretless Broker in the Background
+    #   shell: |
+    #     nohup secretless-broker </dev/null >/dev/null 2>&1 &
